@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createEarth } from './createEarth';
-import { createStarlinkSatellite } from './createStarlinkSatellite';
+import { createSatellitePoints } from './createSatellitePoints';
+// import { createStarlinkSatellite } from './createStarlinkSatellite';
 
 let earthScene = null;
 
@@ -35,8 +36,9 @@ function setScene() {
 	const earth = createEarth();
 	scene.add(earth);
 
-	// Add the Starlink satellite to the scene
-	createStarlinkSatellite(scene)
+	// Add the satellite points to the scene
+	const satellites = createSatellitePoints();
+	scene.add(satellites);
 
 	// Add directional light
 	const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
