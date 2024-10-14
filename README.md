@@ -9,7 +9,7 @@ Install packages (*I like yarn*)\
 `yarn`
 
 Start the php server
-`php artisan serve`\
+`php artisan serve`
 
 Start the Vite dev server
 `yarn run dev`
