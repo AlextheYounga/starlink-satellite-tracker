@@ -9,7 +9,7 @@ function animate() {
 	requestAnimationFrame(animate);
 
 	// Rotate the Earth
-	// earthScene.earth.rotation.y += 1.21e-6;  // Adjust speed of rotation here
+	earthScene.earth.rotation.y += 1.21e-6;  // Adjust speed of rotation here
 	earthScene.renderer.render(earthScene.scene, earthScene.camera); // Render the scene
 	earthScene.controls.update();
 }
@@ -38,9 +38,15 @@ function flatMapCoordinates(input) {
 function createEarth() {
 	// Create the Earth geometry and material
 	const paleBlueDot = new THREE.Group()
+
+	// Load textures
+	const textureLoader = new THREE.TextureLoader();
+	const earthTexture = textureLoader.load('./images/8081_earthmap10k.jpg.webp');
+
 	const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
-	const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x2B357E });
+	const earthMaterial = new THREE.MeshPhongMaterial({ map: earthTexture });
 	const earthSphere = new THREE.Mesh(earthGeometry, earthMaterial);
+	earthSphere.rotateY(Math.PI)
 	paleBlueDot.add(earthSphere)
 
 	fetch('/data/geojson.zip').then((response) => {
@@ -104,7 +110,7 @@ function setScene() {
 	});
 
 	// Add directional light
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+	const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
 	directionalLight.position.set(5, 3, 5).normalize();
 	scene.add(directionalLight);
 
@@ -117,7 +123,7 @@ function setScene() {
 	const controls = new OrbitControls(camera, renderer.domElement);
 	controls.screenSpacePanning = false;
 	controls.minDistance = 1.1;
-	controls.maxDistance = 10;
+	controls.maxDistance = 20;
 
 	// Camera positioning
 	camera.position.z = 5;
