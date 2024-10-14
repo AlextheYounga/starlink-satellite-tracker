@@ -3,14 +3,14 @@ import * as THREE from 'three';
 
 export function createSatellitePoints() {
     const geometry = new THREE.BufferGeometry();
-	const size = 0.005;
-	const count = 3000;
+	const size = 0.003;
+	const count = 7010;
     const positions = [];
 
     for (let i = 0; i < count; i++) {
 		const phi = Math.acos(2 * Math.random() - 1);
 		const theta = 2 * Math.PI * Math.random();
-		const radius = 4.2; // Adjust the radius as needed
+		const radius = 4.344; 
 
 		const x = radius * Math.sin(phi) * Math.cos(theta);
 		const y = radius * Math.sin(phi) * Math.sin(theta);

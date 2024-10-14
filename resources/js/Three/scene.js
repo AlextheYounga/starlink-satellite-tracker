@@ -26,7 +26,7 @@ function setScene() {
 	// Set up controls
 	const controls = new OrbitControls(camera, renderer.domElement);
 	controls.screenSpacePanning = false;
-	controls.minDistance = 4.1;
+	controls.minDistance = 4.45;
 	controls.maxDistance = 20;
 
 	// Camera positioning

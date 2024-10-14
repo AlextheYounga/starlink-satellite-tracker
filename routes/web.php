@@ -6,7 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
+Route::get('/welcome', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -26,6 +26,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // Pages
-Route::get('/earth', [PagesController::class, 'earth'])->name('pages.books');
+Route::get('/', [PagesController::class, 'earth'])->name('pages.books');
 
 require __DIR__.'/auth.php';
