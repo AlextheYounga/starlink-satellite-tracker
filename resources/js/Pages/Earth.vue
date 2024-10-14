@@ -5,7 +5,7 @@
 
 <script>
 import { Head } from '@inertiajs/vue3';
-import { renderEarth } from '@/Three/earth';
+import { renderEarthScene } from '@/Three/scene';
 
 export default {
     components: {
@@ -13,7 +13,7 @@ export default {
     },
 
     created() {
-        renderEarth();
+        renderEarthScene();
     },
 }
 </script>
