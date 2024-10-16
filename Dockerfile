@@ -26,5 +26,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 # Expose port 8000
 EXPOSE 8000
 
+# Run DB migrations
+CMD ["php", "artisan", "migrate"]
+CMD ["php", "artisan", "db:seed"]
+
 # Default command
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

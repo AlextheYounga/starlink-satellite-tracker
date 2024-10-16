@@ -5,6 +5,8 @@
 
 <img src="./public/images/starlink-satellite-tracker.jpg" width="500" alt="Starlink Satellite Tracker">
 
+This pulls satellite data from [SpaceTrack.org](https://www.space-track.org/)
+
 ### Quick Start
 If you don't want to install php, I've included a Docker compose file that will download php, composer, then automatically start the dev server. 
 
@@ -12,11 +14,11 @@ If you don't want to install php, I've included a Docker compose file that will 
 
 Then all you'll need to do is run either:
 
-`npm install && npm run dev`
+`npm run dev`
 
  or if you like yarn:
 
-`yarn && yarn run dev`
+`yarn run dev`
 
 ## Normal Laravel Flow 
 Install packages (*I like yarn*)\
@@ -24,6 +26,12 @@ Install packages (*I like yarn*)\
 
 Install php packages via [composer](https://getcomposer.org/download/)\
 `composer install`
+
+Run the db migrations:\
+`php artisan migrate`
+
+Run the db seeder to seed the default satellite positions
+`php artisan db:seed`
 
 Start the php server\
 `php artisan serve`
