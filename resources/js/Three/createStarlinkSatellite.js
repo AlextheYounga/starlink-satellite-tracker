@@ -1,6 +1,8 @@
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+// TODO: Add real Starlink satellite model to the scene 
+
 export async function createStarlinkSatellite(scene) {
     const loader = new GLTFLoader();
     const x = 2.7

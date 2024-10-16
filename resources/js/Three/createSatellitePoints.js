@@ -16,6 +16,8 @@ const toThree = (v) => {
     return { x: v.x, y: v.z, z: -v.y };
 }
 
+// TODO: Add velocity to the satellite points
+
 export function createSatellitePoints(satellites) {
 	const positions = [];
 	const geometry = new THREE.BufferGeometry();
