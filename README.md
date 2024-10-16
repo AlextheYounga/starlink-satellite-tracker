@@ -6,11 +6,27 @@
 <img src="./public/images/starlink-satellite-tracker.jpg" width="500" alt="Starlink Satellite Tracker">
 
 ### Quick Start
-Install packages (*I like yarn*)\
-`yarn`
+If you don't want to install php, I've included a Docker compose file that will download php, composer, then automatically start the dev server. 
 
-Start the php server
+`docker compose up`
+
+Then all you'll need to do is run either:
+
+`npm install && npm run dev`
+
+ or if you like yarn:
+
+`yarn && yarn run dev`
+
+## Normal Laravel Flow 
+Install packages (*I like yarn*)\
+`yarn` or `npm install`
+
+Install php packages via [composer](https://getcomposer.org/download/)\
+`composer install`
+
+Start the php server\
 `php artisan serve`
 
-Start the Vite dev server
+Start the Vite dev server\
 `yarn run dev`
