@@ -20,6 +20,9 @@ class EarthController extends Controller
 				'mean_anomaly',
 				'eccentricity',
 				'semimajor_axis',
+				'tle_line1',
+				'tle_line2',
+				'tle_line3',
 			])->get();
 
         return Inertia::render('Earth', [

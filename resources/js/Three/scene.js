@@ -9,7 +9,7 @@ let earthScene = null;
 function setScene(satellites) {
 	// Create the scene
 	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
 
 	// Set up renderer
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -26,8 +26,8 @@ function setScene(satellites) {
 	// Set up controls
 	const controls = new OrbitControls(camera, renderer.domElement);
 	controls.screenSpacePanning = false;
-	controls.minDistance = 4.45;
-	controls.maxDistance = 20;
+	controls.minDistance = 4.7;
+	controls.maxDistance = 100;
 
 	// Camera positioning
 	camera.position.z = 10;
