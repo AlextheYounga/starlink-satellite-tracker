@@ -6,7 +6,7 @@ import { createSatellitePoints } from './createSatellitePoints';
 
 let earthScene = null;
 
-function setScene() {
+function setScene(satellites) {
 	// Create the scene
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
@@ -30,15 +30,15 @@ function setScene() {
 	controls.maxDistance = 20;
 
 	// Camera positioning
-	camera.position.z = 5;
+	camera.position.z = 10;
 
 	// Add the Earth to the scene
 	const earth = createEarth();
 	scene.add(earth);
 
 	// Add the satellite points to the scene
-	const satellites = createSatellitePoints();
-	scene.add(satellites);
+	const satellitePoints = createSatellitePoints(satellites);
+	scene.add(satellitePoints);
 
 	// Add directional light
 	const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
@@ -68,7 +68,7 @@ function animate() {
 	earthScene.controls.update();
 }
 
-export const renderEarthScene = async () => {
-	earthScene = setScene()
+export const renderEarthScene = async (satellites) => {
+	earthScene = setScene(satellites)
 	animate(); // Start the animation
 }

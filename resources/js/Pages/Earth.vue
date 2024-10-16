@@ -11,9 +11,14 @@ export default {
     components: {
         Head,
     },
-
+	props: {
+		satellites: {
+			type: Array,
+			required: true,
+		},
+	},
     created() {
-        renderEarthScene();
+        renderEarthScene(this.satellites);
     },
 }
 </script>

@@ -1286,6 +1286,11 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
 
+satellite.js@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/satellite.js/-/satellite.js-5.0.0.tgz#9db39c7c6f202d3486fb7b9da072d023d8ec0a63"
+  integrity sha512-ie3yiJ2LJAJIhVUKdYhgp7V0btXKAMImDjRnuaNfJGl8rjwP2HwVIh4HLFcpiXYEiYwXc5fqh5+yZqCe6KIwWw==
+
 set-function-length@^1.2.1:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/set-function-length/-/set-function-length-1.2.2.tgz#aac72314198eaed975cf77b2c3b6b880695e5449"
