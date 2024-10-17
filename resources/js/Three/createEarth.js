@@ -82,8 +82,9 @@ export function createEarth() {
 	const currentHour = currentTime.getUTCHours();
 	const currentMinute = currentTime.getUTCMinutes();
 	const timeDecimal = currentHour + (currentMinute / 60)
-	const arcRotation = hourlyIncrements * timeDecimal
-	paleBlueDot.rotateY(arcRotation) // Put the earth at noon at UTC time.
+	const arcDegrees = hourlyIncrements * timeDecimal
+	const radians = arcDegrees * (Math.PI / 180)
+	paleBlueDot.rotateY(radians) // Put the earth at noon at UTC time.
 	
 	return paleBlueDot
 }
