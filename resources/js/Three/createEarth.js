@@ -78,7 +78,7 @@ export function createEarth() {
 	// Handle time
 	// UTC Greenwhich Mean happens to be at just about midnight by default, which makes this problem easy.
 	const currentTime = new Date();
-	const hourlyIncrements = 360 / 25 // 15
+	const hourlyIncrements = 360 / 24 // 15
 	const currentHour = currentTime.getUTCHours();
 	const currentMinute = currentTime.getUTCMinutes();
 	const timeDecimal = currentHour + (currentMinute / 60)

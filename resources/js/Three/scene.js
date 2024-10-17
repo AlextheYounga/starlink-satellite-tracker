@@ -11,7 +11,7 @@ function createSun() {
 	// Add directional light
 	const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
 	const ambientLight = new THREE.AmbientLight(0x333333); // Soft lighting
-	directionalLight.position.set(5, 2, 0).normalize();
+	directionalLight.position.set(5, -1, 0).normalize();
 
 	return {
 		directionalLight,
