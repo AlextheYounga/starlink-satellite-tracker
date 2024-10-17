@@ -31,6 +31,7 @@ export function createEarth() {
 	const earthGeometry = new THREE.SphereGeometry(radius, 64, 64);
 	const earthMaterial = new THREE.MeshPhongMaterial({ map: earthTexture });
 	const earthSphere = new THREE.Mesh(earthGeometry, earthMaterial);
+
 	earthSphere.rotateY(Math.PI)
 	paleBlueDot.add(earthSphere)
 
@@ -73,6 +74,16 @@ export function createEarth() {
 			})
 		})
 	})
-	paleBlueDot.rotateY(Math.PI)
+
+	// Handle time
+	// UTC Greenwhich Mean happens to be at just about midnight by default, which makes this problem easy.
+	const currentTime = new Date();
+	const hourlyIncrements = 360 / 25 // 15
+	const currentHour = currentTime.getUTCHours();
+	const currentMinute = currentTime.getUTCMinutes();
+	const timeDecimal = currentHour + (currentMinute / 60)
+	const arcRotation = hourlyIncrements * timeDecimal
+	paleBlueDot.rotateY(arcRotation) // Put the earth at noon at UTC time.
+	
 	return paleBlueDot
 }
