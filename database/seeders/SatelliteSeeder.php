@@ -27,7 +27,7 @@ class SatelliteSeeder extends Seeder
 				'norad_cat_id' => $satellite['norad_cat_id'],	
 			], $satFields->toArray());
 
-			print_r("Seeding " . $satRecord->id . "\n");
+			// print_r("Seeding " . $satRecord->id . "\n");
 		}
     }
 }
