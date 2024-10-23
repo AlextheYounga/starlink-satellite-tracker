@@ -14,8 +14,15 @@ class SatelliteSeeder extends Seeder
     public function run(): void
     {
 		$model = new Satellite();
-		$storage = Storage::disk('public')->get('starlink-spacedata.json');
-        $satellites = json_decode($storage, true);
+		$data = [];
+		if (Storage::disk('public')->exists('starlink-spacedata.json')) {
+			$data = Storage::disk('public')->get('starlink-spacedata.json');
+		} else {
+			// Use example data if cron data does not exist.
+			$data = Storage::disk('public')->get('starlink-spacedata.example.json');
+		}
+
+        $satellites = json_decode($data, true);
 		
 		foreach ($satellites as $satellite) {
 			$satellite = array_change_key_case($satellite, CASE_LOWER);
@@ -23,11 +30,9 @@ class SatelliteSeeder extends Seeder
 			$metadata = collect($satellite)->except($model->getFillable());
 			$satFields = $primaryFields->merge(['metadata' => $metadata]);
 
-			$satRecord = Satellite::updateOrCreate([
+			Satellite::updateOrCreate([
 				'norad_cat_id' => $satellite['norad_cat_id'],	
 			], $satFields->toArray());
-
-			// print_r("Seeding " . $satRecord->id . "\n");
 		}
     }
 }

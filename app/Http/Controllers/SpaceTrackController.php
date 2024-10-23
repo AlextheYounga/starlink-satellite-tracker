@@ -26,11 +26,13 @@ class SpaceTrackController extends Controller
 			'password' => env('SPACE_TRACK_PASSWORD'),
 		]);
 		
-		$cookieJar = $response->cookies();
+		$netScapeCookie = $response->getHeader('Set-Cookie');
+		$cookieJson = json_encode(($response->cookies()->toArray())); 
 		
 		if ($response->successful()) {
 			echo "Login successful!";
-			Storage::put('cookie.txt', $cookieJar);
+			Storage::disk('public')->put('cookie.txt', $netScapeCookie[0]);
+			Storage::disk('public')->put('cookie.json', $cookieJson);
 			sleep(1); // Let's give em a break.
 		} else {
 			echo "Login failed: " . $response->body();
@@ -42,26 +44,25 @@ class SpaceTrackController extends Controller
 			throw new \Exception("Failed to fetch from space-track after 3 attempts");
 		}
 
-		if (!Storage::exists('cookie.txt')) {
+		if (!Storage::disk('public')->exists('cookie.txt')) {
 			$this->authenticate();
 		}
 		
-		$cookieJar = Storage::disk('public')->get('cookie.txt');
-		$cookieJar = unserialize($cookieJar);
+		$cookieJson = Storage::disk('public')->get('cookie.json');
+		$cookieJson = json_decode($cookieJson, true);
+		if ($cookieJson[0]['Expires'] < time()) {
+			$this->authenticate();
+		}
+		$cookieString = Storage::disk('public')->get('cookie.txt');
+		
+		$response = Http::withHeaders([
+			'Cookie' => $cookieString,
+		])->get($this->urls['spacedata']);
 
-		try {
-			$response = Http::withCookies($cookieJar)->get($this->urls['spacedata']);
-			Storage::put('starlink-spacedata.json', $response->body()); // Save the space data to a file in case
-			return $response->body();
-		} catch (\Illuminate\Http\Client\RequestException $e) {
-			if ($e->response->status() === 401) {
-				sleep($this->timer);
-				$this->timer *= 2; // Exponential backoff
-				$this->authenticate();
-				$this->fetchStarlinkSpaceData();
-			} else {
-				throw $e;
-			}
+		if ($response->failed() || array_key_exists('error', json_decode($response->body(), true))) {
+			throw new \Exception("Failed to fetch data from space-track: " . $response->body());
+		} else {
+			Storage::disk('public')->put('starlink-spacedata.json', $response->body());// Save the space data to a file in case
 		}
 	}
 }
