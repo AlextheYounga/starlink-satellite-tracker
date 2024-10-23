@@ -63,6 +63,7 @@ class SpaceTrackController extends Controller
 			throw new \Exception("Failed to fetch data from space-track: " . $response->body());
 		} else {
 			Storage::disk('public')->put('starlink-spacedata.json', $response->body());// Save the space data to a file in case
+			echo "Satellite data fetched successfully!";
 		}
 	}
 }

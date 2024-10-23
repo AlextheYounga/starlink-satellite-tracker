@@ -29,6 +29,6 @@ class SpaceTrack extends Command
     {
 		$controller = new SpaceTrackController();
 		$controller->fetchStarlinkSpaceData();
-		// $this->call(SatelliteSeeder::class);
+		$this->call(SatelliteSeeder::class);
     }
 }
