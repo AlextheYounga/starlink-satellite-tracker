@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createEarth } from './createEarth';
-import { createSatellitePoints, calculateSatellitePosition } from './createSatellitePoints';
+import { createSatellitePoints, updateSatellitePositions } from './createSatellitePoints';
 
+let isAnimating = true; // Track if animation is running
 let earthScene = null;
 const fps = 15; // We put satellite animation sloooow so we don't kill our CPUs
 let fpsInterval, now, then, elapsed, start;
@@ -17,6 +18,26 @@ function createSun() {
 		directionalLight,
 		ambientLight
 	}
+}
+
+function createPlayButton() {
+	// Create Play/Stop Button
+	const button = document.createElement('button');
+	button.innerHTML = isAnimating ? 'Stop' : 'Play'; // Update button text
+	button.style.position = 'absolute';
+	button.style.top = '8px';
+	button.style.left = '8px';
+	button.style.padding = '8px 20px';
+	button.style.fontSize = '8px';
+	button.style.backgroundColor = '#fff';
+	button.style.zIndex = '1000'; // Ensure button is on top
+	document.body.appendChild(button);
+
+	// Toggle animation on button click
+	button.addEventListener('click', () => {
+		isAnimating = !isAnimating; // Toggle the animation state
+		button.innerHTML = isAnimating ? 'Stop' : 'Play'; // Update button text
+	});
 }
 
 function setScene(satellites) {
@@ -45,49 +66,37 @@ function setScene(satellites) {
 	// Camera positioning
 	camera.position.z = 10;
 
-	// Add the Earth to the scene
-	const earth = createEarth();
-	scene.add(earth);
-
-	// Add the satellite points to the scene
-	const satellitePoints = createSatellitePoints(satellites);
-	scene.add(satellitePoints);
-
 	// Add the Sun to the scene
 	const sun = createSun();
 	scene.add(sun.directionalLight);
 	scene.add(sun.ambientLight);
 
+	// Add the Earth to the scene, with satellite points 
+	const earth = createEarth(satellites);
+
+	// Add the satellite points to the earth scene
+	const satellitePoints = createSatellitePoints(satellites);
+	earth.add(satellitePoints);
+
+	scene.add(earth)
+
+
 	return {
 		earth,
-		satellitePoints,
 		satellites,
+		satellitePoints,
 		scene,
 		renderer,
 		camera,
-		controls
+		controls,
 	}
 }
 
-async function updateSatellitePositions() {
-	// Update each particle's position
-	const positions = earthScene.satellitePoints.geometry.attributes.position.array;
-	for (let i = 0; i < earthScene.satellites.length; i++) {
-		const satellite = earthScene.satellites[i]
-		const satellitePosition = calculateSatellitePosition(satellite)
-		if (!satellitePosition) continue
 
-		positions[i * 3] = satellitePosition.x;
-		positions[i * 3 + 1] = satellitePosition.y;
-		positions[i * 3 + 2] = satellitePosition.z;
-	}
-
-	earthScene.satellitePoints.geometry.attributes.position.needsUpdate = true; // Notify Three.js of the update
-}
 
 // Animation loop
 function animate() {
-	requestAnimationFrame(animate);
+	requestAnimationFrame(animate); // Only continue animation if allowed
 
 	now = Date.now();
 	elapsed = now - then;
@@ -97,6 +106,8 @@ function animate() {
 	earthScene.renderer.render(earthScene.scene, earthScene.camera); // Render the scene
 	earthScene.controls.update();
 
+	if (!isAnimating) return; // If not animating, skip satellite updates
+
 	// if enough time has elapsed, draw the next frame
 	if (elapsed > fpsInterval) {
 		// Let's give it a couple seconds before we worry about animating satellites
@@ -104,7 +115,7 @@ function animate() {
 			// Get ready for next frame by setting then=now, but also adjust for your
 			// specified fpsInterval not being a multiple of RAF's interval (16.7ms)
 			then = now - (elapsed % fpsInterval);
-			updateSatellitePositions()
+			updateSatellitePositions(earthScene);
 		}
 	}
 }
@@ -118,5 +129,6 @@ function startAnimating() {
 
 export const renderEarthScene = async (satellites) => {
 	earthScene = setScene(satellites)
+	createPlayButton(); // Create the play button
 	startAnimating(); // Start the animation
 }

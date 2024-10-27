@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { loadAsync } from 'jszip';
+import { handleTime } from './sceneHelpers.js';
 
 function flatMapCoordinates(input) {
 	const result = [];
@@ -74,17 +75,13 @@ export function createEarth() {
 			})
 		})
 	})
-
-	// Handle time
-	// UTC Greenwhich Mean happens to be at just about midnight by default, which makes this problem easy.
-	const currentTime = new Date();
-	const hourlyIncrements = 360 / 24 // 15
-	const currentHour = currentTime.getUTCHours();
-	const currentMinute = currentTime.getUTCMinutes();
-	const timeDecimal = currentHour + (currentMinute / 60)
-	const arcDegrees = hourlyIncrements * timeDecimal
-	const radians = arcDegrees * (Math.PI / 180)
-	paleBlueDot.rotateY(radians) // Put the earth at noon at UTC time.
 	
+	const timeRadians = handleTime();
+	paleBlueDot.rotateY(timeRadians) // Put the earth at noon at UTC time.
+
+	const axesHelper = new THREE.AxesHelper(5); // Adjust size to fit your scene
+	paleBlueDot.add(axesHelper); // Add axes helper to the Earth
+
+
 	return paleBlueDot
 }

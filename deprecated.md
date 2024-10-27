@@ -560,3 +560,71 @@ export function createSatellitePoints(satellites) {
 	return satellitePoints
 }
 ```
+
+## Satellite Details
+Render satellite details when close enough
+
+```js
+// Function to create and show text
+function createTextElement(satellite) {
+	const div = document.createElement('div');
+	div.style.position = 'absolute';
+	div.style.padding = '8px';
+	div.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+	div.style.color = 'white';
+	div.style.borderRadius = '4px';
+	div.innerHTML = satellite.object_name;
+	document.body.appendChild(div);
+	return div;
+}
+
+// Helper function to compute the distance between two 3D vectors
+function distanceTo(pointA, pointB) {
+    return pointA.distanceTo(pointB); // Euclidean distance calculation
+}
+
+async function renderSatelliteDetails(earthScene, satelliteId, satellitePosition) {
+	const { x, y, z } = satellitePosition;
+	const pointPosition = new THREE.Vector3(x, y, z);
+
+	// Compute the distance between the camera and the current point
+	const distance = distanceTo(earthScene.camera.position, pointPosition);
+	const labelElement = satelliteDetails[satelliteId];
+	// Check if the distance is less than or equal to 0.2
+	if (distance <= 0.45) {
+		// Project the 3D point position to 2D screen space
+		const screenPosition = pointPosition.clone().project(earthScene.camera);
+		const screenX = (screenPosition.x + 1) / 2 * window.innerWidth;
+		const screenY = (-screenPosition.y + 1) / 2 * window.innerHeight;
+
+		// Position the label on the screen
+		const labelElement = satelliteDetails[satelliteId];
+		labelElement.style.left = `${screenX}px`;
+		labelElement.style.top = `${screenY}px`;
+
+		// Hide label if the point is not in front of the camera
+		labelElement.style.display = 'block';
+	} else {
+		labelElement.style.display = 'none';
+	}
+}
+
+export async function updateSatellitePositions(earthScene) {
+	// Update each particle's position
+	const positions = earthScene.satellitePoints.geometry.attributes.position.array;
+	const ids = earthScene.satellitePoints.geometry.attributes.id.array;
+	for (let i = 0; i < ids.length; i++) {
+		const noradId = ids[i];
+		const satellite = satelliteMap[noradId];
+		const satellitePosition = calculateSatellitePosition(satellite.tle_line1, satellite.tle_line2);
+
+		positions[i * 3] = satellitePosition.x;
+		positions[i * 3 + 1] = satellitePosition.y;
+		positions[i * 3 + 2] = satellitePosition.z;
+
+		renderSatelliteDetails(earthScene, noradId, satellitePosition);
+	}
+
+	earthScene.satellitePoints.geometry.attributes.position.needsUpdate = true; // Notify Three.js of the update
+}
+```
