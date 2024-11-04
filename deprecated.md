@@ -628,3 +628,79 @@ export async function updateSatellitePositions(earthScene) {
 	earthScene.satellitePoints.geometry.attributes.position.needsUpdate = true; // Notify Three.js of the update
 }
 ```
+
+```js
+// Create a canvas texture with text
+function createTextTexture() {
+	const index = appliedLabels.length; // Use the current length as the index
+	const satellite = Object.values(satelliteMap)[index]; 
+	const canvas = document.createElement('canvas');
+	const context = canvas.getContext('2d');
+
+	// Set canvas size (adjust as needed)
+	canvas.width = 256;
+	canvas.height = 64;
+
+	// Style the text
+	context.fillStyle = 'rgba(0, 0, 0, 0.7)'; // Background
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	context.font = '24px Arial';
+	context.fillStyle = 'white'; // Text color
+	context.textAlign = 'center';
+	context.textBaseline = 'middle';
+	context.fillText(satellite.object_name, canvas.width / 2, canvas.height / 2);
+
+	// Create a texture from the canvas
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+}
+```
+
+```js
+// Function to create and show text
+function createTextElement(satelliteName) {
+	const div = document.createElement('div');
+	div.style.position = 'absolute';
+	div.style.padding = '6px';
+	div.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+	div.style.color = 'white';
+	div.style.borderRadius = '3px';
+	div.style.fontSize = '11px';
+	div.innerHTML = satelliteName;
+	div.style.display = 'none';
+	document.body.appendChild(div);
+	return div;
+}
+```
+
+```js
+async function renderSatelliteDetails(ids, earthScene) {
+	const positions = earthScene.satellitePoints.geometry.attributes.position.array;
+	for (let i = 0; i < ids.length; i++) {
+		const noradId = ids[i];
+		const label = labels[noradId];
+		label.style.display = 'block';
+		const vector = new THREE.Vector3(
+			positions[i * 3],
+			positions[i * 3 + 1],
+			positions[i * 3 + 2],
+		);
+		
+		// Set the label position
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		const widthHalf = width / 2;
+		const heightHalf = height / 2;
+		const vector2D = vector.project(earthScene.camera);
+		const x = (vector2D.x * widthHalf) + widthHalf;
+		const y = -(vector2D.y * heightHalf) + heightHalf;
+		label.style.right = `${x}px`;
+		label.style.top = `${y}px`;
+		// Set label position to match 3D point's projection on the 2D screen
+        labels.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+        labels.style.display = vector.z < 1 ? 'block' : 'none'; // Hide label if behind the camera
+	}
+}
+```

@@ -3,9 +3,15 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createEarth } from './createEarth';
 import { createSatellitePoints, updateSatellitePositions } from './createSatellitePoints';
 
+// Create the scene
+const sceneRenderer = new THREE.WebGLRenderer({ antialias: true });
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+
+// State variables
 let isAnimating = true; // Track if animation is running
 let earthScene = null;
-const fps = 15; // We put satellite animation sloooow so we don't kill our CPUs
+const fps = 30; // We put satellite animation sloooow so we don't kill our CPUs
 let fpsInterval, now, then, elapsed, start;
 
 function createSun() {
@@ -41,24 +47,19 @@ function createPlayButton() {
 }
 
 function setScene(satellites) {
-	// Create the scene
-	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-
-	// Set up renderer
-	const renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.body.appendChild(renderer.domElement);
+	// Set up scene renderer
+	sceneRenderer.setSize(window.innerWidth, window.innerHeight);
+	document.body.appendChild(sceneRenderer.domElement);
 
 	// Handle window resizing
 	window.addEventListener('resize', () => {
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		sceneRenderer.setSize(window.innerWidth, window.innerHeight);
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 	});
 
 	// Set up controls
-	const controls = new OrbitControls(camera, renderer.domElement);
+	const controls = new OrbitControls(camera, sceneRenderer.domElement);
 	controls.screenSpacePanning = false;
 	controls.minDistance = 4.7;
 	controls.maxDistance = 100;
@@ -77,24 +78,18 @@ function setScene(satellites) {
 	// Add the satellite points to the earth scene
 	const satellitePoints = createSatellitePoints(satellites);
 	earth.add(satellitePoints);
-
 	scene.add(earth)
-
 
 	return {
 		earth,
 		satellites,
 		satellitePoints,
-		scene,
-		renderer,
-		camera,
 		controls,
+		camera
 	}
 }
 
 
-
-// Animation loop
 function animate() {
 	requestAnimationFrame(animate); // Only continue animation if allowed
 
@@ -103,7 +98,7 @@ function animate() {
 
 	// Rotate the Earth
 	earthScene.earth.rotation.y += 1.21e-6;  // Adjust speed of rotation here
-	earthScene.renderer.render(earthScene.scene, earthScene.camera); // Render the scene
+	sceneRenderer.render(scene, camera); // Render the scene
 	earthScene.controls.update();
 
 	if (!isAnimating) return; // If not animating, skip satellite updates

@@ -79,8 +79,8 @@ export function createEarth() {
 	const timeRadians = handleTime();
 	paleBlueDot.rotateY(timeRadians) // Put the earth at noon at UTC time.
 
-	const axesHelper = new THREE.AxesHelper(5); // Adjust size to fit your scene
-	paleBlueDot.add(axesHelper); // Add axes helper to the Earth
+	// const axesHelper = new THREE.AxesHelper(5); // Adjust size to fit your scene
+	// paleBlueDot.add(axesHelper); // Add axes helper to the Earth
 
 
 	return paleBlueDot
