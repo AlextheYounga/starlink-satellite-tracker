@@ -76,16 +76,19 @@ function setScene(satellites) {
 	const earth = createEarth(satellites);
 
 	// Add the satellite points to the earth scene
-	const satellitePoints = createSatellitePoints(satellites);
-	earth.add(satellitePoints);
+	// const satellitePoints = createSatellitePoints(satellites);
+	const {points, labels} = createSatellitePoints(satellites);
+	for (const label of labels) earth.add(label)
+	earth.add(points);
 	scene.add(earth)
 
 	return {
 		earth,
 		satellites,
-		satellitePoints,
 		controls,
-		camera
+		camera,
+		labels,
+		satellitePoints: points,
 	}
 }
 

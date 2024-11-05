@@ -704,3 +704,164 @@ async function renderSatelliteDetails(ids, earthScene) {
 	}
 }
 ```
+
+### More Label Attempts
+```
+import * as THREE from 'three';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
+
+// Method 1: Using Sprite Materials with Canvas
+function createSpriteText(text, position) {
+    // Create canvas for text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 256;
+    
+    // Style text - make font smaller to accommodate smaller sprite size
+    context.font = 'Bold 24px Arial';
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, canvas.width/2, canvas.height/2);
+    
+    // Create sprite with smaller scale
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ 
+        map: texture,
+        sizeAttenuation: true
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.position.copy(position);
+    
+    // Set to desired small size (0.1 width)
+    sprite.scale.set(0.1, 0.1, 1);
+    
+    return sprite;
+}
+
+// Example usage
+const sprite = createSpriteText("Label", new THREE.Vector3(0, 0, 0));
+scene.add(sprite);
+
+// Method 2: Using TextGeometry (3D Text)
+// async function create3DText(text, position) {
+//     const loader = new FontLoader();
+    
+//     // Load font (you'll need to provide the actual font path)
+//     const font = await loader.loadAsync('/path/to/helvetiker_regular.typeface.json');
+    
+//     const geometry = new TextGeometry(text, {
+//         font: font,
+//         size: 0.5,
+//         height: 0.1,
+//         curveSegments: 12,
+//         bevelEnabled: false
+//     });
+    
+//     const material = new THREE.MeshStandardMaterial({
+//         color: 0xffffff
+//     });
+    
+//     const textMesh = new THREE.Mesh(geometry, material);
+//     textMesh.position.copy(position);
+    
+//     // Center the text
+//     geometry.computeBoundingBox();
+//     const centerOffset = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+//     textMesh.position.x += centerOffset;
+    
+//     return textMesh;
+// }
+
+// Method 3: Using Texture-mapped Plane
+// function createPlaneText(text, position) {
+//     // Create canvas
+//     const canvas = document.createElement('canvas');
+//     const context = canvas.getContext('2d');
+//     canvas.width = 256;
+//     canvas.height = 256;
+    
+//     // Style and draw text
+//     context.fillStyle = 'rgba(0, 0, 0, 0)';
+//     context.fillRect(0, 0, canvas.width, canvas.height);
+//     context.font = 'Bold 40px Arial';
+//     context.fillStyle = 'white';
+//     context.textAlign = 'center';
+//     context.textBaseline = 'middle';
+//     context.fillText(text, canvas.width/2, canvas.height/2);
+    
+//     // Create texture
+//     const texture = new THREE.CanvasTexture(canvas);
+//     texture.minFilter = THREE.LinearFilter;
+//     texture.wrapS = THREE.ClampToEdgeWrapping;
+//     texture.wrapT = THREE.ClampToEdgeWrapping;
+    
+//     // Create plane
+//     const geometry = new THREE.PlaneGeometry(1, 1);
+//     const material = new THREE.MeshBasicMaterial({
+//         map: texture,
+//         transparent: true,
+//         side: THREE.DoubleSide
+//     });
+    
+//     const mesh = new THREE.Mesh(geometry, material);
+//     mesh.position.copy(position);
+    
+//     return mesh;
+// }
+
+// // Example usage with Points Geometry
+// function createTextPoints(scene) {
+//     // Create points geometry
+//     const positions = new Float32Array([
+//         1, 1, 1,
+//         -1, -1, -1,
+//         2, -2, 0,
+//         -2, 2, 0
+//     ]);
+    
+//     const geometry = new THREE.BufferGeometry();
+//     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+//     // Create points
+//     const pointsMaterial = new THREE.PointsMaterial({ size: 0.1, color: 0xffffff });
+//     const points = new THREE.Points(geometry, pointsMaterial);
+//     scene.add(points);
+    
+//     // Add text labels using your preferred method
+//     const positions3D = [];
+//     for (let i = 0; i < positions.length; i += 3) {
+//         positions3D.push(new THREE.Vector3(
+//             positions[i],
+//             positions[i + 1],
+//             positions[i + 2]
+//         ));
+//     }
+    
+//     // Example using sprite method
+//     positions3D.forEach((pos, i) => {
+//         const label = createSpriteText(`Point ${i}`, pos);
+//         scene.add(label);
+//     });
+    
+//     return { points, positions3D };
+// }
+
+// // Example of updating text positions
+// function updateTextPositions(textObjects, newPositions) {
+//     textObjects.forEach((text, i) => {
+//         if (newPositions[i]) {
+//             text.position.copy(newPositions[i]);
+//         }
+//     });
+// }
+
+// // Billboard effect for sprites/planes (always face camera)
+// function updateBillboards(textObjects, camera) {
+//     textObjects.forEach(text => {
+//         text.lookAt(camera.position);
+//     });
+// }
+```

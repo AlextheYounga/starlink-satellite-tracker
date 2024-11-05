@@ -3,23 +3,45 @@ import { twoline2satrec, propagate } from 'satellite.js';
 import { handleTime } from './sceneHelpers.js';
 
 const satelliteMap = {}
-const labels = {}
 const badSatellites = [55394, 55424] // Corrupt data
 
-function createTextElement(satelliteName) {
-	const div = document.createElement('div');
-	div.style.position = 'absolute';
-	div.style.padding = '6px';
-	div.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-	div.style.color = 'white';
-	div.style.borderRadius = '3px';
-	div.style.fontSize = '11px';
-	div.style.cursor = 'default';
-	div.style.overflow = 'hidden';
-	div.innerHTML = satelliteName;
-	div.style.display = 'none';
-	document.body.appendChild(div);
-	return div;
+
+export async function updateSatellitePositions(earthScene) {
+	// Update each particle's position
+	const positions = earthScene.satellitePoints.geometry.attributes.position.array;
+	const ids = earthScene.satellitePoints.geometry.attributes.id.array;
+	const newPositions = []
+	for (let i = 0; i < ids.length; i++) {
+		const noradId = ids[i];
+		const satellite = satelliteMap[noradId];
+		const satellitePosition = calculateSatellitePosition(satellite.tle_line1, satellite.tle_line2);
+		newPositions.push(satellitePosition)
+		positions[i * 3] = satellitePosition.x;
+		positions[i * 3 + 1] = satellitePosition.y;
+		positions[i * 3 + 2] = satellitePosition.z;
+	}
+	// const earthRotationAngle = handleTime(); // Get the current rotation angle
+	// const rotationMatrix = new THREE.Matrix4().makeRotationY(-earthRotationAngle); // Negative to sync
+	// earthScene.satellitePoints.geometry.rotateY(Math.PI)
+	// earthScene.satellitePoints.geometry.applyMatrix4(rotationMatrix);
+	earthScene.satellitePoints.geometry.attributes.position.needsUpdate = true; // Notify Three.js of the update
+
+	const geometryCenter = new THREE.Vector3(0,0,0);
+	const distanceToCenter = earthScene.camera.position.distanceTo(geometryCenter);
+
+	// Update satellite labels
+    if (distanceToCenter < 6) {
+		for (let i = 0; i < newPositions.length; i++) {
+			const position = newPositions[i];
+			earthScene.labels[i].visible = true;
+			earthScene.labels[i].position.set(position.x, position.y + 0.01, position.z + 0.01);
+		}
+    } else {
+        // Hide all labels when too far
+		for (let i = 0; i < ids.length; i++) {
+			earthScene.labels[i].visible = false;
+		}
+    }
 }
 
 function calculateSatellitePosition(tleLine1, tleLine2) {
@@ -41,89 +63,39 @@ function calculateSatellitePosition(tleLine1, tleLine2) {
 	return { x, y, z };
 }
 
-async function renderSatelliteDetails(ids, earthScene) {
-    const positions = earthScene.satellitePoints.geometry.attributes.position.array;
-    const frustum = new THREE.Frustum();
-    const projScreenMatrix = new THREE.Matrix4();
+function createSpriteTextLabel(text, position) {
+    // Create canvas for text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 256;
     
-    projScreenMatrix.multiplyMatrices(
-        earthScene.camera.projectionMatrix,
-        earthScene.camera.matrixWorldInverse
-    );
-    frustum.setFromProjectionMatrix(projScreenMatrix);
-
-    for (let i = 0; i < ids.length; i++) {
-        const noradId = ids[i];
-        const label = labels[noradId];
-        
-        // Create vector for position
-        const vector = new THREE.Vector3(
-            positions[i * 3],
-            positions[i * 3 + 1],
-            positions[i * 3 + 2]
-        );
-        
-        // Check if point is in view frustum
-        if (!frustum.containsPoint(vector)) {
-            label.style.display = 'none';
-            continue;
-        }
-
-        // Calculate screen position
-        vector.project(earthScene.camera);
-        
-        const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-        const y = (vector.y * 0.5 + 0.5) * window.innerHeight;
-        
-        // Only show if in front of camera (z < 1)
-        if (vector.z < 1) {
-            label.style.display = 'block';
-            label.style.left = `${x}px`;
-            label.style.top = `${y}px`;
-        } else {
-            label.style.display = 'none';
-        }
-    }
+    // Style text - make font smaller to accommodate smaller sprite size
+    context.font = 'Bold 24px Arial';
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, canvas.width/2, canvas.height/2);
+    
+    // Create sprite with smaller scale
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ 
+        map: texture,
+        sizeAttenuation: true
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.position.set(position.x, position.y + 0.01, position.z + 0.01);
+    sprite.scale.set(0.1, 0.1, 0.1);
+	sprite.visible = false;
+    
+    return sprite;
 }
 
-
-export async function updateSatellitePositions(earthScene) {
-	// Update each particle's position
-	const positions = earthScene.satellitePoints.geometry.attributes.position.array;
-	const ids = earthScene.satellitePoints.geometry.attributes.id.array;
-	for (let i = 0; i < ids.length; i++) {
-		const noradId = ids[i];
-		const satellite = satelliteMap[noradId];
-		const satellitePosition = calculateSatellitePosition(satellite.tle_line1, satellite.tle_line2);
-		positions[i * 3] = satellitePosition.x;
-		positions[i * 3 + 1] = satellitePosition.y;
-		positions[i * 3 + 2] = satellitePosition.z;
-	}
-	const earthRotationAngle = handleTime(); // Get the current rotation angle
-	const rotationMatrix = new THREE.Matrix4().makeRotationY(-earthRotationAngle); // Negative to sync
-
-	earthScene.satellitePoints.geometry.rotateY(Math.PI)
-	earthScene.satellitePoints.geometry.applyMatrix4(rotationMatrix);
-	earthScene.satellitePoints.geometry.attributes.position.needsUpdate = true; // Notify Three.js of the update
-
-	const geometryCenter = new THREE.Vector3(0,0,0);
-	const distanceToCenter = earthScene.camera.position.distanceTo(geometryCenter);
-
-    if (distanceToCenter < 5) {
-        renderSatelliteDetails(ids, earthScene);
-    } else {
-        // Hide all labels when too far
-        ids.forEach(id => {
-            if (labels[id]) {
-                labels[id].style.display = 'none';
-            }
-        });
-    }
-}
 
 export function createSatellitePoints(satellites) {
 	const ids = [];
 	const positions = [];
+	const labels = [];
 	const geometry = new THREE.BufferGeometry();
 	const size = 0.005;
 	const limit = 10
@@ -131,15 +103,14 @@ export function createSatellitePoints(satellites) {
 
 	for (const satellite of satellites) {
 		if (i++ >= limit) break; // Limit the number of satellites processed
-		// const satellite = satellites[i];
 		const noradId = parseInt(satellite.norad_cat_id)
 		if (badSatellites.includes(noradId)) continue; // Skip bad satellites
 
 		const satellitePosition = calculateSatellitePosition(satellite.tle_line1, satellite.tle_line2);
 		if (!satellitePosition) continue;
 
-		const label = createTextElement(satellite.object_name);
-		labels[noradId] = label;
+		const label = createSpriteTextLabel(satellite.object_name, satellitePosition);
+		labels.push(label)
 
 		ids.push(noradId);
 		positions.push(satellitePosition.x, satellitePosition.y, satellitePosition.z);
@@ -150,15 +121,19 @@ export function createSatellitePoints(satellites) {
 	geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 	geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 	geometry.setAttribute('id', new THREE.Int32BufferAttribute(ids, 1)); // Add custom 'id' attribute
-	geometry.rotateY(Math.PI)
-
-	const earthRotationAngle = handleTime(); // Get the current rotation angle
-	const rotationMatrix = new THREE.Matrix4().makeRotationY(-earthRotationAngle); // Negative to sync
-	geometry.applyMatrix4(rotationMatrix);
+	
+	
+	// geometry.rotateY(Math.PI)
+	// const earthRotationAngle = handleTime(); // Get the current rotation angle
+	// const rotationMatrix = new THREE.Matrix4().makeRotationY(-earthRotationAngle); // Negative to sync
+	// geometry.applyMatrix4(rotationMatrix);
 
 	const material = new THREE.PointsMaterial({ size: size });
 	const points = new THREE.Points(geometry, material);
 
-	return points
+	return {
+		points, 
+		labels
+	}
 }
 
